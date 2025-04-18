@@ -1,4 +1,4 @@
-#  Identifying Data Buyers from Job Postings - Overview
+#  Identifying Data Buyers from Job Postings
 
 This project aims to identify companies — particularly in the private sector — that are likely buyers of external data, based on patterns in their job postings. By analyzing thousands of roles across general, marketing, and finance domains, the project infers data-buying intent. 
 
@@ -9,38 +9,9 @@ The model outputs a binary flag indicating likely data buyer roles, a probabilit
 This framework supports a range of strategic use cases:
 
 - Sales Enablement: Identify companies or teams with strong inferred demand for external datasets
-
 - Partnership Targeting: Flag high-probability data buyers for outreach or collaboration
-
 - Market Intelligence: Monitor emerging signals of data usage trends across industries and job functions
 
-```
-.
-├── data/
-│   └── Combined_scrapeddata.csv              # Final merged and labeled dataset
-│
-├── visuals/                                  # All plots used in README
-│   ├── confusion_matrix.png
-│   ├── keyword_vs_probability.png
-│   ├── title_coefficients.png
-│   ├── wordcloud_predictive_phrases.png
-│   └── usecase_correlation.png
-│
-├── analysis/
-│   ├── Scraped_data_analysis_round1.py       # EDA & keyword analysis: general
-│   ├── Scraped_data_analysis_round2.py       # EDA & keyword analysis: marketing
-│   ├── Scraped_data_analysis_round3.py       # EDA & keyword analysis: finance
-│   └── marketing_jobs_enriched.xlsx          # Industry/size analysis for marketing jobs
-│
-├── retrieval/
-│   ├── jobs_retrieval.py            # Google Jobs scraping template
-│   └── jobs_data_conversion.py      # JSON to CSV converter
-│
-├── modeling/
-│   └── Model.py   # TF-IDF + logistic regression pipeline
-│
-├── README.md                                 # Final project documentation
-```
 
 ## Step 1: Data Scraping and JSON Conversion
 
@@ -101,7 +72,7 @@ Each analysis round targeted a distinct subset of job types (general, marketing,
 - **Multi-field scanning**: Matching was performed across fields including `description`, `responsibilities`, and (where applicable) `job_highlights`.
 - **Filtering**: Jobs with one or more keyword hits were retained for further review.
 
-> *Note:* Fuzzy matching was not used during the EDA stage, where only direct keyword hits were counted for interpretability and clarity. However, fuzzy matching was applied during the modeling stage (at 85% similarity threshold) to capture broader phrasing variations and near-matches. This choice was to prioritize recall over precision in the model— as false positives (non-buyers predicted as buyers) are not costly in this context and help surface hidden interest in external data use.
+**Note:** Fuzzy matching was not used during the EDA stage, where only direct keyword hits were counted for interpretability and clarity. However, fuzzy matching was applied during the modeling stage (at 85% similarity threshold) to capture broader phrasing variations and near-matches. This choice was to prioritize recall over precision in the model— as false positives (non-buyers predicted as buyers) are not costly in this context and help surface hidden interest in external data use.
 
 ###  Targeted keyword matching 
 
@@ -120,6 +91,7 @@ The following keyword sets were used:
 - **Marketing-Specific Keywords (On top of General/Shared Keywords):**  marketing analytics, customer data, audience insights, marketing intelligence, advertising analytics, consumer insights, customer segmentation, brand analytics, cross-channel marketing, media planning, customer behavior analysis, data-driven marketing, retail analytics, advertising optimization, predictive marketing, market research data, digital advertising data, marketing insights, marketing data strategy, performance marketing, B2B marketing data, consumer demographics, new market, ad spend analytics
 
 ##  Step 3: Exploratory Analysis
+
 ### Seniority Analysis: Senior vs. Non-Senior Roles
 Despite a slightly higher buyer rate among senior roles (22.4% vs. 17.7%), seniority had limited impact on buyer classification. Probable buyers are spread across levels of experience, suggesting that data use intent isn't confined to higher-level positions.
 
@@ -136,7 +108,6 @@ This supports the model’s emphasis on job-level tagging over industry classifi
 An analysis of companies with the most predicted buyer roles shows diversity across sectors. Earn Haus led the list, followed by known employers like Maximus, Ivy Exec, USAA, and Amazon. Each company is mapped by its dominant use case.
 
 ![Top Buyer Companies](Visuals/Databuyer_Companyfrequency.png)
-
 
 To go beyond simple keyword matching, I performed an additional analysis on the subset of **marketing job postings** that matched external data-buying signals. This step involved classifying companies by **industry** and **organization size**.
 
@@ -155,14 +126,15 @@ The marketing dataset was richer in ambiguity and sector diversity (Retail, AdTe
   - `Large`: >10,000 employees
   - `Medium`: 1,000–10,000 employees
   - `Small`: <1,000 employees
-- Inference from classification:
+
+Inference from classification:
 
 ![Industry Classification](Visuals/Marketing_industryclass.png)
 ![Size Classification](Visuals/Marketing_Sizeclass.png)
 
-> This method can be extended to general and finance rounds, or applied across the full dataset and incorporated into the model's predictive features.(`Combined_scrapeddata.csv`).  
->  Classification results for marketing jobs are stored in:  
-> `analysis/marketing_jobs_enriched.xlsx`
+This method can be extended to general and finance rounds, or applied across the full dataset and incorporated into the model's predictive features.(`Combined_scrapeddata.csv`).  
+Classification results for marketing jobs are stored in:  
+`analysis/marketing_jobs_enriched.xlsx`
 
 
 ##  Step 4: Predictive Modeling
@@ -192,8 +164,8 @@ This is the final, labeled dataset used for training and evaluation.
 | `is_senior`         | Binary flag for seniority |
 | `is_tech`, `is_finance`, etc. | Sector flags from keyword-based tagging |
 
->  Target variable: `is_probable_db`  
->  Size: ~3,436 job postings
+Target variable: `is_probable_db`  
+Size: ~3,436 job postings
 
 
 ###  Method Overview
@@ -224,15 +196,13 @@ This is the final, labeled dataset used for training and evaluation.
 
 ### Classifier
 
-- Logistic Regression with Elastic Net regularization
+Logistic Regression with Elastic Net regularization:
   - Solver: `saga`  
   - `l1_ratio` values: 0.3, 0.5  
   - Cross-validation folds: 5 for main model (10 for title model)
   - Scoring metric: `F1`
 
----
-
-## Model Variations
+### Models Experiments
 
 We tested three model versions and selected the best-performing one based on feature interpretability and overall recall for `is_probable_db = 1`.
 
@@ -258,13 +228,11 @@ We tested three model versions and selected the best-performing one based on fea
 
 All variations included structured flags and SMOTE-based balancing. The 2,5 n-gram model was selected for its stronger phrase-level learning and practical interpretability.
 
----
-
-## Model Output & Strategic Applications
+### Outcome & Insights
 
 The model assigns:
 - A binary prediction (`is_probable_db`) for whether a job is likely associated with external data use or procurement
-- A DataBuyerScore  a predicted probability from 0 to 1, representing the models confidence in the job being a data-buying role
+- A DataBuyerScore a predicted probability from 0 to 1, representing the models confidence in the job being a data-buying role
 
 The model outputs can be used to:
 
@@ -274,9 +242,7 @@ The model outputs can be used to:
 - Target high-potential leads, even when keywords are absent
 
 
-
-
-**Model Comparison Table**
+#### Model Performance
 
 | Model Type           | Accuracy | Recall (Buyers)| F1 Score | McFadden R² |
 |----------------------|----------|------------------|----------|-------------|
@@ -287,17 +253,15 @@ The model outputs can be used to:
 
 The extended phrase model (2–5 n-grams) offered the best trade-off between interpretability, recall, and robustness, despite the slightly higher pseudo R² of the 1–3 model.The low pseudo R² of title only model shows that contextual information from job description and responsibilities is critical to identifying true data buyers, and titles can not be solely relied on to identify data buyers.
 
+#### Confusion Matrix
 
-**Key Visuals**
-
-1. The **confusion matrix** shows that the model effectively identifies data buyers, with more false positives than false negatives—aligning with our goal to prioritize recall and avoid missing likely buyer roles.
+The confusion matrix shows that the model effectively identifies data buyers, with more false positives than false negatives—aligning with our goal to prioritize recall and avoid missing likely buyer roles.
 
 ![Confusion Matrix](Visuals/confusion_matrix.png)
 
+#### Data Buyer Score
 
-2. The **Data buyer score** histogram shows the distribution of predicted probabilities (`DataBuyerScore`) across all job postings.A few very high scores (>0.8) likely reflect clear data buyer roles. No notable cluster near 0, and a peak at peak at 20% to 40%, indicates higher ambiguity in job descriptions about data buying. 
-
-- Targeting Use Cases Based on Probability Distribution
+The histogram below shows the distribution of predicted probabilities (`DataBuyerScore`) across all job postings. A few very high scores (>0.8) likely reflect clear data buyer roles. No notable cluster near 0, and a peak at peak at 20% to 40%, indicates higher ambiguity in job descriptions about data buying.
 
 The `DataBuyerScore` enables practical targeting strategies:
 
@@ -305,73 +269,69 @@ The `DataBuyerScore` enables practical targeting strategies:
 - Company Aggregation: Compute average buyer probability per company to surface hot leads
 - Hidden Buyer Detection: Spot jobs with no keyword matches but high predicted probability, revealing roles the model identified through context and structure (e.g., title, sector)
 
-Example:
-- A job with no explicit keywords but a score of 0.85 may still be a strong candidate for follow-up, based on inferred patterns.
+For example, a job with no explicit keywords but a score of 0.85 may still be a strong candidate for follow-up, based on inferred patterns.
 
 This probability-based approach goes beyond simple keyword matching to uncover implicit signals of data-buying intent.
 
 ![Probability Histogram](Visuals/probability_distribution.png)
 
+#### Word Cloud
 
-3. The **Word Cloud** from top coefficients of the model shows:
+The word cloud from top coefficients of the model shows:
 
-Positive Predictors:  
-  -   *market research*, *market intelligence*, *external data sources*, *audience insights*
-
-Negative Predictors:  
-  -   *anti money laundering*, *compliance risk*, *financial services*
+- **Positive Predictors**: "market research", "market intelligence", "external data sources", "audience insights"
+- **Negative Predictors**: "anti money laundering", "compliance risk", "financial services"
  
- Green phrases indicate strong positive association with data-buying roles; red indicates negative association. Font size reflects feature importance. While terms like financial servicesand fraud, compliance have negative weights overall, 203 finance use case jobs were flagged as probable buyers. Filtering for finance only use cases, data buying is more common in market research, credit analytics - not compliance-focused jobs.
+Green phrases indicate strong positive association with data-buying roles; red indicates negative association. Font size reflects feature importance. While terms like financial servicesand fraud, compliance have negative weights overall, 203 finance use case jobs were flagged as probable buyers. Filtering for finance only use cases, data buying is more common in market research, credit analytics - not compliance-focused jobs.
 
 ![Word Cloud](Visuals/wordcloud_predictive_phrases.png)  
 
+#### Top Job Titles
 
-4. The **Top Titles** with positive and negative data buying signals:
-- Positive: *market research analyst*, *insights strategist*, *data strategy director*  
-- Negative: *aml compliance officer*, *fraud risk analyst*
+The top job titles with positive and negative data buying signals:
+- **Positive**: "market research", "reserch analyst", "business analyst"
+- **Negative**: "money laundering", "compliance risk"
 
-Titles containing “research,” “strategy,” or “insights” are strong positive signals, while compliance-related titles tend to predict non-buyers. However, **title-only predictions should not be solely relied on** - the model performs only marginally better than an intercept-only baseline, as reflected in the low pseudo R².
+Titles containing “research”, “strategy”, or “insights” are strong positive signals, while compliance-related titles tend to predict non-buyers. However, **title-only predictions should not be solely relied on** - the model performs only marginally better than an intercept-only baseline, as reflected in the low pseudo R².
  
 ![Top Titles](Visuals/title_coefficients.png)
 
 
-
 ## Key Takeaways
 
-### Likely Data Buyers
+**Likely Data Buyers**
 
 - Roles in marketing, tech, and analytics consistently scored high, especially when referencing market research, audience insights, or external data — often without “data” in the title (88% of marketing buyers).
 - Cross-functional analysts and governance roles likely reflect institutional reliance on external insights beyond traditional data teams.
 - In finance, buyer signals emerged in credit risk and market risk roles.
 
-### Less Likely
+**Less Likely Data Buyers**
 
 - Compliance-focused roles (e.g., AML, fraud risk) and ad tech showed negative signals, likely due to reliance on internal data.
 - Negative coefficients for terms like money laundering and financial services suggest these are structural non-buyer roles, despite being data-intensive.
 
-### Industry vs. Use Case: Important Distinction
+**Industry vs. Use Case: Important Distinction**
 
-- While a company's industry might be financial services (e.g., a commercial bank), the job's function may still fall under marketing, strategy, or analytics — all of which are more likely to involve external data use.
+While a company's industry might be financial services (e.g., a commercial bank), the job's function may still fall under marketing, strategy, or analytics — all of which are more likely to involve external data use.
 
 For example, a *Customer Insights Analyst* at a bank is more likely to reflect data-buying intent than an *AML Compliance Officer*, despite being in the same industry.
 
-- This highlights the importance of modeling use case at the job level, rather than relying solely on company-level industry labels.
+This highlights the importance of modeling use case at the job level, rather than relying solely on company-level industry labels.
 
----
+## Opportunities for Improvement and Other Considerations
 
-## Opportunities for Improvement and other considerations
- The analysis infers the intent to buy or use external data based on job descriptions. It does not confirm actual purchases. Model predictions are based on linguistic and structural patterns and have not yet been externally validated against confirmed buyer activity or sales outcomes.
+The analysis infers the intent to buy or use external data based on job descriptions. It does not confirm actual purchases. Model predictions are based on linguistic and structural patterns and have not yet been externally validated against confirmed buyer activity or sales outcomes.
 
 - **Probabilistic Labeling**  
   Replace the binary `is_probable_db` flag with confidence scores (e.g., 1.0 for keyword match, 0.7 for fuzzy match, 0.4 for inferred context) to improve label nuance and model flexibility.
 
-- **Feature enhancements**  
+- **Feature enhancements**
   Enrich with company size, industry, or additional context fields to improve predictions. Expand sector-level, size level tagging beyond marketing jobs and incorporate it within the model. Reassess labeling logic periodically to ensure continued relevance as job language evolves across sectors and technologies. 
 
-- **Leverage External Data Sources**  
+- **Leverage External Data Sources**
   Use platforms like Crunchbase to enrich company-level attributes (e.g., B2B vs. B2C, SaaS vs. nonprofit). Crunchbase could complement our scraped data by supplying firm-level signals to enhance job-level predictions.
 
-- **Broaden Job Source Coverage**  
+- **Broaden Job Source Coverage** 
   Expand scraping beyond Google Jobs to include platforms like LinkedIn and Indeed for broader and more representative coverage. Access may require paid APIs and compliance with scraping restrictions.
 
 - **Contextual NLP Methods**  
