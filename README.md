@@ -1,6 +1,6 @@
 #  Identifying Data Buyers from Job Postings
 
-This project aims to identify companies — particularly in the private sector — that are likely buyers of external data, based on patterns in their job postings. By analyzing thousands of roles across general, marketing, and finance domains, the project infers data-buying intent. 
+This project was developed as part of a capstone for Blue Street Data to identify potential data buyers using job postings. It uses TF-IDF, logistic regression, and custom filters to predict buyer probability with ~80% accuracy.
 
 I collected job postings from public APIs, applied structured cleaning, keyword analysis, and natural language processing, and built a logistic regression model to flag roles indicative of external data use. This includes not only roles with explicit terms like “data procurement” or “market intelligence,” but also more implicit signals found in titles, responsibilities, and industry-specific language.
 
