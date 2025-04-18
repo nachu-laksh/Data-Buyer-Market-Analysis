@@ -4,13 +4,43 @@ This project aims to identify companies — particularly in the private sector �
 
 I collected job postings from public APIs, applied structured cleaning, keyword analysis, and natural language processing, and built a logistic regression model to flag roles indicative of external data use. This includes not only roles with explicit terms like “data procurement” or “market intelligence,” but also more implicit signals found in titles, responsibilities, and industry-specific language.
 
-The model outputs a binary flag indicating likely data buyer roles, a probability score (DataBuyerScore) representing model confidence, and key phrases to target when identifying data buyers. 
+The model outputs a binary flag indicating likely data buyer roles, a probability score (DataBuyerScore) representing model confidence, and key phrases to target when identifying data buyers.
 
 This framework supports a range of strategic use cases:
 
 - Sales Enablement: Identify companies or teams with strong inferred demand for external datasets
 - Partnership Targeting: Flag high-probability data buyers for outreach or collaboration
 - Market Intelligence: Monitor emerging signals of data usage trends across industries and job functions
+
+**Table of Contents**
+
+- [Identifying Data Buyers from Job Postings](#identifying-data-buyers-from-job-postings)
+  - [Step 1: Data Scraping and JSON Conversion](#step-1-data-scraping-and-json-conversion)
+    - [Job Role Queries Used to Form Dataset](#job-role-queries-used-to-form-dataset)
+  - [Step 2: Keyword-Based Signal Detection](#step-2-keyword-based-signal-detection)
+    - [How It Works](#how-it-works)
+    - [Targeted Keyword Matching](#targeted-keyword-matching)
+  - [Step 3: Exploratory Analysis](#step-3-exploratory-analysis)
+    - [Seniority Analysis: Senior vs. Non-Senior Roles](#seniority-analysis-senior-vs-non-senior-roles)
+    - [Use Case Distribution](#use-case-distribution)
+    - [Top Buyer Companies](#top-buyer-companies)
+    - [Industry and Size Classification for Marketing Use Case](#industry-and-size-classification-for-marketing-use-case)
+      - [Classification Process](#classification-process)
+  - [Step 4: Predictive Modeling](#step-4-predictive-modeling)
+    - [Dataset](#dataset)
+    - [Key Columns](#key-columns)
+    - [Method Overview](#method-overview)
+    - [Classifier](#classifier)
+    - [Model Experiments](#model-experiments)
+    - [Outcome \& Insights](#outcome--insights)
+      - [Model Performance](#model-performance)
+      - [Confusion Matrix](#confusion-matrix)
+      - [Data Buyer Score](#data-buyer-score)
+      - [Word Cloud](#word-cloud)
+      - [Top Job Titles](#top-job-titles)
+  - [Key Takeaways](#key-takeaways)
+  - [Opportunities for Improvement and Other Considerations](#opportunities-for-improvement-and-other-considerations)
+
 
 ## Step 1: Data Scraping and JSON Conversion
 
@@ -73,7 +103,7 @@ Each analysis round targeted a distinct subset of job types (general, marketing,
 
 **Note:** Fuzzy matching was not used during the EDA stage, where only direct keyword hits were counted for interpretability and clarity. However, fuzzy matching was applied during the modeling stage (at 85% similarity threshold) to capture broader phrasing variations and near-matches. This choice was to prioritize recall over precision in the model— as false positives (non-buyers predicted as buyers) are not costly in this context and help surface hidden interest in external data use.
 
-###  Targeted keyword matching 
+###  Targeted Keyword Matching 
 
 Scripts for keyword matching are located in the `Analysis` folder.
 
@@ -140,15 +170,14 @@ Classification results for marketing jobs are stored in:
 
 To move beyond rule-based keyword matching, I trained logistic regression models to predict which job postings likely indicate data-buying behavior. This modeling phase was designed to generalize patterns in job language and structure — especially where signals are subtle or indirect.
 
-###  Dataset used: `Combined_scrapeddata.csv`
+###  Dataset
 
-This is the final, labeled dataset used for training and evaluation.
+`Combined_scrapeddata.csv` found under `Data/` is the final, labeled dataset used for training and evaluation. It was constructed in the following manner:
 
-- Merged from all 3 scraping rounds (general, marketing, finance)
-- Cleaned and deduplicated.
-- Labeled using fuzzy keyword matching at 85% similarity threshold.
-- Applied use case tagging at the job level based on frequency of use case specific key words in the job text, independent of company industry.
-
+1. Formed by merging data from all 3 scraping rounds (general, marketing, finance)
+2. Cleaned and deduplicated
+3. Labeled using fuzzy keyword matching at 85% similarity threshold
+4. Applied use case tagging at the job level based on frequency of use case specific key words in the job text, independent of company industry
 
 ### Key Columns
 
@@ -166,13 +195,11 @@ This is the final, labeled dataset used for training and evaluation.
 Target variable: `is_probable_db`  
 Size: ~3,436 job postings
 
-
 ###  Method Overview
 
 - **Input Data**:
   - Combined job postings from **Round 1 (general roles)**, **Round 2 (marketing roles)**, and **Round 3 (finance/risk roles)** into a unified dataset (`Combined_scrapeddata.csv`)
   
-
 - **Input Features**:
   - Cleaned job title, description, and responsibilities (combined into `job_text`)
   - Binary use-case flags (`is_tech`, `is_finance`, etc.)
@@ -201,7 +228,7 @@ Logistic Regression with Elastic Net regularization:
   - Cross-validation folds: 5 for main model (10 for title model)
   - Scoring metric: `F1`
 
-### Models Experiments
+### Model Experiments
 
 I tested three model versions and selected the best-performing one based on feature interpretability and overall recall for `is_probable_db = 1`.
 
@@ -243,7 +270,7 @@ The model outputs can be used to:
 
 #### Model Performance
 
-| Model Type           | Accuracy | Recall (Buyers)| F1 Score | McFadden R² |
+| Model Type           | Accuracy | Recall (Buyers)  | F1 Score | McFadden R² |
 |----------------------|----------|------------------|----------|-------------|
 | 1–3 n-gram (dropped) | 89.8%    | 82.7%            | 76.2%    | 0.265       |
 | 2–5 n-gram (final)   | 91.8%    | 84.4%            | 80.3%    | 0.254       |
