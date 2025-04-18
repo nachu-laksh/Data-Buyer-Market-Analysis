@@ -6,7 +6,7 @@ import requests
 job_timestamp = int(datetime.now().timestamp())
 
 # Your SerpApi API key
-API_KEY = "977ff908379a03a4d9c72dc5b71abe7d5cf7ce139c01d8221d0afbb1381e5d49"
+API_KEY = "########"
 
 # Define API parameters
 params = {
