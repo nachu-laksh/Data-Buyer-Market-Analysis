@@ -12,17 +12,16 @@ This framework supports a range of strategic use cases:
 - Partnership Targeting: Flag high-probability data buyers for outreach or collaboration
 - Market Intelligence: Monitor emerging signals of data usage trends across industries and job functions
 
-
 ## Step 1: Data Scraping and JSON Conversion
 
 Job postings were collected from Google Jobs using a standardized pipeline based on two modular Python scripts:
 
-### `jobs_retrieval.py`
+**`jobs_retrieval.py`**
 - Queries Google Jobs via [SerpAPI](https://serpapi.com/) using predefined job titles.
 - Supports pagination and rate-limiting safeguards.
 - Saves results into `.json` files with search term and timestamp.
 
-###  `jobs_data_conversion.py`
+**`jobs_data_conversion.py`**
 - Parses raw `.json` files and extracts structured fields:
   - `job_id`, `title`, `company_name`, `location`
   - `description`, `responsibilities` (from nested `job_highlights`)
@@ -204,7 +203,7 @@ Logistic Regression with Elastic Net regularization:
 
 ### Models Experiments
 
-We tested three model versions and selected the best-performing one based on feature interpretability and overall recall for `is_probable_db = 1`.
+I tested three model versions and selected the best-performing one based on feature interpretability and overall recall for `is_probable_db = 1`.
 
 1. Full Job Text  Short N-grams
    - Input: `job_text`
